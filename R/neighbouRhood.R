@@ -167,10 +167,10 @@ apply_labels <- function(dat_labels, dat_rel){
   objid = dat_labels[, get(OBJID)]
   labvec = rep(labels[1], max(objid))
   labvec[objid] = labels
-
-  dat_rel[, (FIRSTLABEL) := labvec[get(FIRSTOBJID)]]
-  dat_rel[, (SECONDLABEL) := labvec[get(SECONDOBJID)]]
-  dat_rel
+	dat_rel_temp=dat_rel
+  dat_rel_temp[, (FIRSTLABEL) := labvec[get(FIRSTOBJID)]]
+  dat_rel_temp[, (SECONDLABEL) := labvec[get(SECONDOBJID)]]
+  dat_rel_temp
 }
 
 
