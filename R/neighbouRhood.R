@@ -156,7 +156,18 @@ shuffle_labels <- function(dat_labels){
   return(dat_labels[ , .(label=sample(label), ObjectID=ObjectID), by=group])
 }
 
-#' Applies the labels on a a relationship table
+
+#' shuffle labels with cell type of 'FirstLabel' (written by KelvinLee)
+#' Reference: A Structured Tumor-Immune Microenvironment in Triple Negative Breast Cancer Revealed by Multiplexed Ion Beam Imaging
+shuffle_labels_except <- function(dat_labels,cell_type){
+  dat_labels_fix=copy(dat_labels[which(dat_labels$label==cell_type),])
+  dat_labels_fix=dat_labels[,.(group,label,ObjectID)]
+	dat_labels_shuffle=copy(dat_labels[which(dat_labels$label!=cell_type),])
+	dat_labels_shuffle=dat_labels_shuffle[ , .(label=sample(label), ObjectID=ObjectID), by=group]
+	return(rbind(dat_labels_fix,dat_labels_shuffle))
+}
+
+#' Applies the labels on a a relationship table (rewritten by KelvinLee, functionally same as the previous version from Bodenmiller Lab)
 #' @param   dat_labels a labels table as formated by the prepare_tables function. Must have columns 'label', 'ObjectID', 'group'
 #' @param dat_rel a relationship table as formated by the prepare_tables function. Must have columns "First Object ID", "Second Object ID"
 #'
@@ -208,7 +219,8 @@ aggregate_histo <- function(dat_nb){
   dat_temp[, .(ct=mean(ct)), by=.(group, FirstLabel, SecondLabel)]
 }
 
-#' replace mean with sum for significance test 
+#' replace mean with sum for significance test (written by KelvinLee)
+#' Reference
 aggregate_histo_fixed <- function (dat_nb) {
     dat_temp = dat_nb[, .(ct = .N), by = .(group, FirstLabel, 
         SecondLabel, `First Object ID`)]
@@ -285,4 +297,18 @@ calc_p_vals<- function(dat_baseline, dat_perm, n_perm, p_tresh=0.01){
   dat_stat[, sig := p < p_tresh]
   dat_stat[, sigval := as.integer(sig)*sign((direction-0.5))]
   dat_stat
+}
+
+#' zscore as effect size for measurement of neighbourhood of two cell types
+cal_zscore <- function(dat_baseline,dat_perm){
+  
+  dat_perm_1=copy(dat_perm)
+  
+  dat_perm_1=dat_perm_1[, ':='(m=mean(ct),s=sd(ct)), by = .(group, FirstLabel, SecondLabel)]
+  dat_perm_1=dat_perm_1[, ct:=NULL]
+  
+  dat_combine=dat_baseline[dat_perm_1,on=c('group', 'FirstLabel', 'SecondLabel')]
+  
+  return(dat_combine[,z:=(ct-m)/s])
+  
 }
