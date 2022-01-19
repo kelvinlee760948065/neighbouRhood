@@ -208,6 +208,12 @@ aggregate_histo <- function(dat_nb){
   dat_temp[, .(ct=mean(ct)), by=.(group, FirstLabel, SecondLabel)]
 }
 
+#' replace mean with sum for significance test 
+aggregate_histo_fixed <- function (dat_nb) {
+    dat_temp = dat_nb[, .(ct = .N), by = .(group, FirstLabel, 
+        SecondLabel, `First Object ID`)]
+    dat_temp[, .(ct = sum(ct)), by = .(group, FirstLabel, SecondLabel)]
+}
 
 
 #' Calculates patch detection neightbourhood statistics
