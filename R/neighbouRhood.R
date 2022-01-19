@@ -163,13 +163,13 @@ shuffle_labels <- function(dat_labels){
 #' @return a copy of the dat_rel table with additional coluns FirstLabel and SecondLabel
 #' @export
 apply_labels <- function(dat_labels, dat_rel){
-  labels = dat_labels[, get(LABEL)]
-  objid = dat_labels[, get(OBJID)]
+  labels = dat_labels[, label]
+  objid = dat_labels[, ObjectID]
   labvec = rep(labels[1], max(objid))
   labvec[objid] = labels
-	dat_rel_temp=dat_rel
-  dat_rel_temp[, (FIRSTLABEL) := labvec[get(FIRSTOBJID)]]
-  dat_rel_temp[, (SECONDLABEL) := labvec[get(SECONDOBJID)]]
+  dat_rel_temp=copy(dat_rel)
+  dat_rel_temp[, FirstLabel:= labvec[`First Object ID`]]
+  dat_rel_temp[, SecondLabel:= labvec[`Second Object ID`]]
   dat_rel_temp
 }
 
