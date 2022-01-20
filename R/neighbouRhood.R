@@ -317,21 +317,18 @@ cal_zscore <- function(dat_baseline,dat_perm){
 }
 
 #' Calculates cell propotion of cell type Y among neighbours of cell type X (written by KelvinLee)
-#' Afterwards, calculates mean of each X-Y interaction within each sample, and then calculates mean among sample
+#' Afterwards, calculates mean of each X-Y interaction within each sample
 neighbour_proportion <- function(dat_baseline){
 	ct=unique(c(dat_baseline[,c('FirstLabel')]))
   img_num=unique(dat_baseline$group)
   
   table_tmp=dcast(dat_baseline,group+`First Object ID`+FirstLabel~SecondLabel)
   table_info=table_tmp[,.(group,FirstLabel)]
-  table_rate=table_tmp[,3:ncol(table_tmp)] %>%
+  table_rate=table_tmp[,4:ncol(table_tmp)] %>%
     apply(1,function(x){
         x/sum(x)
     }) %>% t() %>% data.table()
   
   table_tmp=cbind(table_info,table_rate)
   table_tmp=table_tmp[, c(lapply(.SD, mean)), by=.(group,FirstLabel)]
-	table_tmp=table_tmp[,group:=NULL]
-  table_tmp=table_tmp[, c(lapply(.SD, mean)), by=.(FirstLabel)] %>%
-  	data.frame(row.names=1,check.names=FALSE)
 }
