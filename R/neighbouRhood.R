@@ -262,6 +262,31 @@ aggregate_classic_patch<- function(dat_nb, patch_size){
 }
 
 
+#' Caculates adverage degree between two given cell types
+aggregate_AdvDegree <- function(dat_baseline){
+	ct=unique(c(dat_baseline[,c('FirstLabel')]))
+  
+  table_cell_num=dat_baseline[,.(group,FirstLabel,`First Object ID`)] %>%
+  	unique(by=c('group','FirstLabel','First Object ID')) 
+  table_cell_num_1=table_cell_num[,`First Object ID`:=NULL] [,FirstLabelNum:=.N,by=.(group,FirstLabel)] %>%
+  	unique() 
+  table_cell_num_2=copy(table_cell_num_1) %>%
+  	setnames(c('FirstLabel','FirstLabelNum'),c('SecondLabel','SecondLabelNum'))
+  
+  
+  table_tmp=copy(dat_baseline)
+  table_tmp=table_tmp[,`:=`(`First Object ID`=NULL,`Second Object ID`=NULL)] [,ct:=sum(ct),by=.(group,FirstLabel,SecondLabel)] %>%
+  	unique()
+  
+  table_tmp=table_tmp[table_cell_num_1,on=.(group,FirstLabel)]
+  table_tmp=table_tmp[table_cell_num_2,on=.(group,SecondLabel)]
+  
+  table_tmp=table_tmp[,.(ct=ct/sqrt(FirstLabelNum*SecondLabelNum)),
+                      by=.(group,FirstLabel,SecondLabel,FirstLabelNum,SecondLabelNum)]
+ 
+	return(table_tmp)
+}
+
 
 #' Calculates p-values from the permutation data as well as the baseline
 #' @param dat_baseline a baseline statistics table calculated by running the aggregate_* function on the unpermuted data
