@@ -329,15 +329,15 @@ calc_p_vals<- function(dat_baseline, dat_perm, n_perm, p_tresh=0.01){
 #' zscore as effect size for measurement of neighbourhood of two cell types (written by KelvinLee)
 #' Reference: Spatial mapping reveals human adipocyte subpopulations with distinct sensitivities to insulin
 cal_zscore <- function(dat_baseline,dat_perm){
-  
+
   dat_perm_1=copy(dat_perm)
-  
-  dat_perm_1=dat_perm_1[, ':='(m=mean(ct),s=sd(ct)), by = .(group, FirstLabel, SecondLabel)]
-  dat_perm_1=dat_perm_1[, ct:=NULL]
+  dat_perm_1=dat_perm[, ':='(m=mean(ct),s=sd(ct)), by = .(group, FirstLabel, SecondLabel)] 
+  dat_perm_1=dat_perm[, `:=`(ct=NULL,run=NULL)] %>%
+  	unique()
   
   dat_combine=dat_baseline[dat_perm_1,on=c('group', 'FirstLabel', 'SecondLabel')]
-  
-  return(dat_combine[,z:=(ct-m)/s])
+  dat_combine[,z:=(ct-m)/s]
+	
   
 }
 
